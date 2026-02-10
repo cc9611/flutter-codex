@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/auth/auth_provider.dart';
 import 'features/device/device_page.dart';
 import 'features/profile/profile_page.dart';
 
@@ -23,11 +24,13 @@ void _configureEasyLoading() {
     ..dismissOnTap = false;
 }
 
-class OpsRechargeApp extends StatelessWidget {
+class OpsRechargeApp extends ConsumerWidget {
   const OpsRechargeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
     return MaterialApp(
       title: 'Ops Recharge App',
       debugShowCheckedModeBanner: false,
@@ -36,7 +39,27 @@ class OpsRechargeApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: authState.isLoggedIn ? const HomePage() : const LoginPage(),
+    );
+  }
+}
+
+class LoginPage extends ConsumerWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            ref
+                .read(authProvider.notifier)
+                .login('native-demo-token-${DateTime.now().millisecondsSinceEpoch}');
+          },
+          child: const Text('模拟登录'),
+        ),
+      ),
     );
   }
 }
